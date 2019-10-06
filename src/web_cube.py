@@ -1,6 +1,5 @@
 import re
 from datetime import datetime
-from functools import partial
 
 import requests
 from lxml import html
@@ -18,8 +17,9 @@ def get_remaining_data() -> dict:
     scripts: list = main_html.xpath('//script[@type="text/javascript"]')
 
     non_empty_contents = list(map(lambda s: s.text, filter(lambda s: s.text, scripts)))
-    guid_search = partial(re.search, r"var guid = '(\d+)'")
-    results = list(filter(lambda x: x, map(guid_search, non_empty_contents)))
+
+    guid_re = re.compile(r"var guid = '(\d+)'")
+    results = list(filter(lambda x: x, map(guid_re.search, non_empty_contents)))
 
     guid = results[0].group(1)
 
@@ -39,19 +39,18 @@ def get_remaining_data() -> dict:
     timestamp = str(int(datetime.timestamp(now)))
 
     # get info request
-    params = {
-        'g': guid,
-        'h': encoded_h,
-        'mc': current_mc,
-        'acid': campaign_id,
-        '_': timestamp
-    }
-    headers = {'Referer': _base_url}
-
-    check_response = requests.get(_get_info_url, params=params, headers=headers)
+    check_response = requests.get(_get_info_url,
+                                  params={
+                                      'g': guid,
+                                      'h': encoded_h,
+                                      'mc': current_mc,
+                                      'acid': campaign_id,
+                                      '_': timestamp
+                                  },
+                                  headers={'Referer': _base_url})
     data = check_response.json()['RemaningData']
 
     return {
-        'remaining': data['remaning'],
-        'total': data['total']
+        'remaining': float(data['remaning']),
+        'total': float(data['total'])
     }
