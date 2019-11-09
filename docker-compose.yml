@@ -2,6 +2,10 @@ version: "3"
 services:
   web-app:
     build: .
+    environment:
+      - DATABASE=mongo
+    env_file:
+      - ./api.env
     ports:
       - "80:8080"
     depends_on:
