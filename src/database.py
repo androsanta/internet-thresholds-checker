@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from pymongo import MongoClient
 
-from app import config
+from config import config
 
 
 class Reading:

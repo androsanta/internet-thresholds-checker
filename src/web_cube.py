@@ -10,7 +10,7 @@ import requests
 from lxml import html
 from lxml.builder import E
 
-from app import config
+from config import config
 from src.database import Reading
 
 logger = logging.getLogger(__name__)

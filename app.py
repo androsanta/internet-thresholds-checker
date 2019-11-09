@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from datetime import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -13,12 +12,6 @@ from src.web_cube import web_cube, WebCubeException
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
-
-config = {
-    'web_cube_username': os.environ['USERNAME'],
-    'web_cube_password': os.environ['PASSWORD'],
-    'db_host': os.environ['DATABASE'] if os.environ['DATABASE'] else 'localhost'
-}
 
 
 @app.route('/')
