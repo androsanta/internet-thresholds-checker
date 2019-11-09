@@ -5,11 +5,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-grid.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-reboot.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
-    <script src="{{ url_for('static', filename='Chart.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/moment.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
 
     <title>WebCube Manager</title>
 </head>
@@ -21,52 +25,147 @@
     </h1>
 </div>
 <div class="container">
-    <div style="height: 300px; width: 100%">
+
+    <div class="progress-container">
+        <div class="progress progress-custom">
+            <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0">
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-left: 12px">
+            <div style="display: flex; align-items: center">
+                <h3 class="text-secondary" style="margin-right: 8px">Left:</h3>
+                <h2 class="text-dark" style="font-weight: bold" id="traffic">...</h2>
+            </div>
+            <h4 class="text-secondary" id="daily-traffic"></h4>
+        </div>
+    </div>
+
+    <div class="chart-container">
         <canvas id="internet-level-chart" width="200" height="200"></canvas>
     </div>
-    <button type="button" class="btn btn-outline-primary">Primary</button>
+
+    <div class="center-container">
+        <button id="refresh-data-btn" type="button"
+                class="btn btn-dark btn-lg btn-block center-container">
+            <div class="loader-container">
+                <span id="btn-loader" class="spinner-grow spinner-grow-sm hidden" role="status"
+                      aria-hidden="true"></span>
+            </div>
+            <span id="btn-message">Refresh</span>
+        </button>
+    </div>
 </div>
 </body>
 
 <script>
-    const ctx = document.getElementById('internet-level-chart')
-    const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: '# of Votes',
-                data: {{ data|safe }},
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    })
+    $(document).ready(() => {
+        const progress = document.getElementById('progress-bar')
+        const refreshDataBtn = document.getElementById('refresh-data-btn')
+        const btnLoader = document.getElementById('btn-loader')
+        const btnMessage = document.getElementById('btn-message')
+        const trafficEl = document.getElementById('traffic')
+        const dailyTrafficEl = document.getElementById('daily-traffic')
 
+        let isGettingData = false
+        const getRemainingData = () => {
+            if (isGettingData) {
+                return
+            }
+
+            isGettingData = true
+            refreshDataBtn.classList.add('disabled')
+            btnLoader.classList.remove('hidden')
+            btnMessage.innerText = 'Loading...'
+            $.ajax({
+                url: 'remaining_data',
+                success: data => {
+                    const remainingData = JSON.parse(data)
+                    const {
+                        percentage,
+                        remainingGb,
+                        totalGb,
+                        dailyTrafficLeftGb,
+                        daysToRenew
+                    } = remainingData
+                    console.log(remainingData)
+
+                    refreshDataBtn.classList.remove('disabled')
+                    btnLoader.classList.add('hidden')
+                    btnMessage.innerText = 'Refresh'
+                    isGettingData = false
+
+                    const percentageTrunc = (+percentage).toFixed(2)
+                    progress.style.width = `${percentageTrunc}%`
+                    progress.innerText = `${percentageTrunc}%`
+
+                    trafficEl.innerText = `${remainingGb.toFixed(2)} / ${totalGb.toFixed(2)} Gb`
+                    let dailyColor = 'text-secondary'
+                    if (dailyTrafficLeftGb < 0.9) {
+                        dailyColor = dailyTrafficLeftGb < 0.8 ? 'text-danger' : 'text-warning'
+                    }
+                    dailyTrafficEl.innerHTML = `<b class="${dailyColor}">${dailyTrafficLeftGb.toFixed(2)} Gb</b> for <b>${daysToRenew}</b> days`
+                },
+                error: err => { // todo handle error
+                    console.log('error getting remaining data', err)
+                }
+            })
+        }
+
+        refreshDataBtn.onclick = getRemainingData
+        getRemainingData()
+
+
+        let weeklyReadings = {{ data|safe }};
+        const {readings, startDate, endDate} = weeklyReadings
+
+        const formattedXYReadings = readings.map(({date, remainingGb}) => ({
+            x: date,
+            y: (+remainingGb).toFixed(2)
+        }))
+
+        const labels = [moment(startDate), moment(endDate)]
+        const timeFormat = 'YYYY-MM-DDTHH:mm:ss.SSS'
+
+        const ctx = document.getElementById('internet-level-chart')
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Internet usage',
+                    data: formattedXYReadings,
+                    borderWidth: 1,
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Remained internet (Gb)'
+                        }
+                    }],
+                    xAxes: [{
+                        type: 'time',
+                        time: {
+                            parser: timeFormat,
+                            unit: 'day',
+                            displayFormats: {
+                                'day': 'ddd'
+                            },
+                            tooltipFormat: 'll HH:mm'
+                        }
+                    }]
+                }
+            }
+        })
+    })
 </script>
 </html>
