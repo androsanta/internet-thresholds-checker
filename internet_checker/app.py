@@ -21,13 +21,13 @@ def entry_point():
     return render_template('index.html', data=json.dumps(weekly_readings))
 
 
-@app.route('/remaining_data')
+@app.route('/status')
 def get_remaining_data():
     try:
         status = web_cube.get_status()
         reading = status.get('reading')
         if not reading:
-            status['reading'] = database.get_last()
+            status['reading'] = database.get_last_reading()
 
         status['reading'] = status['reading'].to_dict()
         return json.dumps(status)

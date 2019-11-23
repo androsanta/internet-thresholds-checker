@@ -78,7 +78,7 @@
             btnLoader.classList.remove('hidden')
             btnMessage.innerText = 'Loading...'
             $.ajax({
-                url: 'remaining_data',
+                url: 'status',
                 success: data => {
                     const remainingData = JSON.parse(data)
                     const {
