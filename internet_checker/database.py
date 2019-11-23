@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from pymongo import MongoClient
 
-from config import config
+from .config import config
 
 
 class Reading:
@@ -14,7 +14,8 @@ class Reading:
         self.total_gb = total_gb
         self.date = datetime.now()
         self.days_to_renew = 7 - ((self.date.weekday() + 1) % 7)
-        self.daily_traffic_left_gb = (remaining_gb / self.days_to_renew)
+        self.daily_traffic_left_gb = (
+                remaining_gb / self.days_to_renew) if self.days_to_renew > 1 else remaining_gb
         self.percentage = (remaining_gb / total_gb) * 100
 
     def to_dict(self) -> dict:
@@ -55,7 +56,8 @@ class _Database:
         normalised_weekday = (date.weekday() + 1) % 7
         week_start: datetime = (date - timedelta(days=normalised_weekday)) \
             .replace(hour=0, minute=0, second=0, microsecond=0)
-        week_end: datetime = week_start + timedelta(days=7) - timedelta(microseconds=1)
+        week_end: datetime = week_start + \
+                             timedelta(days=7) - timedelta(microseconds=1)
         week_start_iso = week_start.isoformat()
         week_end_iso = week_end.isoformat()
         readings = list(self._readings
@@ -67,6 +69,13 @@ class _Database:
             'startDate': week_start.isoformat(),
             'endDate': week_end.isoformat()
         }
+
+    def get_last_reading(self):
+        result = self.get_weekly_readings(datetime.now())
+        readings = result['readings']
+        if len(readings) > 0:
+            return readings[-1]
+        return None
 
 
 database = _Database()

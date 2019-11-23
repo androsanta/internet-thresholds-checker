@@ -10,8 +10,7 @@ import requests
 from lxml import html
 from lxml.builder import E
 
-from config import config
-from src.database import Reading
+from .config import config
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +20,12 @@ def catch_connection_exception(func):
         try:
             return func(*args, **kwargs)
         except requests.exceptions.ConnectionError:
-            raise WebCubeException.connection_exception()
+            raise WebCubeApiException.connection_exception()
 
     return wrap
 
 
-class WebCubeException(Exception):
+class WebCubeApiException(Exception):
     @classmethod
     def connection_exception(cls):
         return cls('Error during http connection')
@@ -36,7 +35,7 @@ class WebCubeException(Exception):
         return cls('Response page does not contain Remaining data info')
 
 
-class _WebCube:
+class _WebCubeApi:
     _username = config['web_cube_username']
     _password = config['web_cube_password']
 
@@ -44,8 +43,8 @@ class _WebCube:
     _remaining_api_url = f'{_remaining_base_url}/calls/checkMSISDN.aspx'
 
     _connection_mode = {
-        'auto': 0,
-        'manual': 1
+        'auto': 0,  # enabled
+        'manual': 1  # disabled
     }
 
     _gateway_base_url = 'http://192.168.1.1'
@@ -55,37 +54,9 @@ class _WebCube:
         'api_connection': f'{_gateway_base_url}/api/dialup/connection'
     }
 
-    def __init__(self):
-        try:
-            requests.get('https://www.google.com')
-        except requests.exceptions.ConnectionError:
-            self._connection_enabled = False
-            logger.info('Network Unreachable, WebCube defaulted to connection disabled')
-        else:
-            self._connection_enabled = True
-            logger.info('Network Reachable, WebCube defaulted to connection enabled')
-
-    @property
-    def connection_enabled(self):
-        return self._connection_enabled
-
-    @connection_enabled.setter
-    def connection_enabled(self, enabled: bool):
-        if enabled == self._connection_enabled:
-            logger.info(f'Connection already set to {enabled}')
-            return
-
-        self._set_mobile_connection(enabled)
-        self._connection_enabled = enabled
-        logger.info(f'Connection set to {enabled}')
-
-    def get_remaining_data(self) -> Reading:
-        remaining_data = self._get_remaining_data()
-        return Reading(remaining_data['remaining_gb'], remaining_data['total_gb'])
-
     @classmethod
     @catch_connection_exception
-    def _get_remaining_data(cls) -> Optional[Dict[str, float]]:
+    def get_remaining_data(cls) -> Optional[Dict[str, float]]:
         # get main page
         main_page = requests.get(cls._remaining_base_url).content
         main_html = html.fromstring(main_page)
@@ -93,13 +64,15 @@ class _WebCube:
         # get guid variable from script tag
         scripts: list = main_html.xpath('//script[@type="text/javascript"]')
 
-        non_empty_contents = map(lambda s: s.text, filter(lambda s: s.text, scripts))
+        non_empty_contents = map(
+            lambda s: s.text, filter(lambda s: s.text, scripts))
 
         guid_re = re.compile(r"var guid = '(\d+)'")
-        results = list(filter(lambda x: x, map(guid_re.search, non_empty_contents)))
+        results = list(filter(lambda x: x, map(
+            guid_re.search, non_empty_contents)))
 
         if len(results) <= 0:
-            raise WebCubeException.missing_content_exception()
+            raise WebCubeApiException.missing_content_exception()
 
         guid = results[0].group(1)
 
@@ -108,8 +81,10 @@ class _WebCube:
         iframe_page = requests.get(iframe.attrib['src']).content
         iframe_html = html.fromstring(iframe_page)
 
-        iframe_script = iframe_html.xpath('//script[@type="text/javascript"]')[0]
-        match = re.search(r"parent.push\('', '(\d+)', '(.+)'\)", iframe_script.text)
+        iframe_script = iframe_html.xpath(
+            '//script[@type="text/javascript"]')[0]
+        match = re.search(
+            r"parent.push\('', '(\d+)', '(.+)'\)", iframe_script.text)
 
         current_mc = match.group(1)
         encoded_h = match.group(2)
@@ -132,7 +107,7 @@ class _WebCube:
         data = check_response.json()['RemaningData']
 
         if not data['remaning'] or not data['total']:
-            raise WebCubeException.missing_content_exception()
+            raise WebCubeApiException.missing_content_exception()
 
         return {
             'remaining_gb': float(data['remaning']) / 1000,
@@ -141,16 +116,17 @@ class _WebCube:
 
     @classmethod
     @catch_connection_exception
-    def _get_login_session(cls) -> requests.Session:
+    def get_login_session(cls) -> requests.Session:
         s = requests.Session()
         home_html = s.get(cls._gateway_base_url).content
-        token = _WebCube._get_token_from_html(home_html)
+        token = _WebCubeApi._get_token_from_html(home_html)
 
         def b64_sha256(value: str) -> str:
             sha256 = hashlib.sha256(value.encode())
             return base64.b64encode(sha256.hexdigest().encode()).decode()
 
-        encoded_password = b64_sha256(cls._username + b64_sha256(cls._password) + token)
+        encoded_password = b64_sha256(
+            cls._username + b64_sha256(cls._password) + token)
 
         req_data = etree.tostring(
             E.request(
@@ -172,10 +148,11 @@ class _WebCube:
 
     @classmethod
     @catch_connection_exception
-    def _set_mobile_connection(cls, enabled: bool):
-        session = cls._get_login_session()
+    def set_mobile_connection(cls, enabled: bool):
+        session = cls.get_login_session()
 
-        mobile_conn_html = session.get(cls._gateway_urls['html_connection']).content
+        mobile_conn_html = session.get(
+            cls._gateway_urls['html_connection']).content
         token = cls._get_token_from_html(mobile_conn_html)
 
         connection_mode = cls._connection_mode['auto' if enabled else 'manual']
@@ -197,7 +174,23 @@ class _WebCube:
                 'Referer': cls._gateway_urls['html_connection']
             })
         if not res:
-            raise WebCubeException.connection_exception()
+            raise WebCubeApiException.connection_exception()
+
+    @classmethod
+    @catch_connection_exception
+    def get_mobile_connection(cls):
+        session = cls.get_login_session()
+        res = session.get(cls._gateway_urls['api_connection'])
+        if not res:
+            raise WebCubeApiException.connection_exception()
+
+        res_tree = etree.fromstring(res.content)
+        matches = res_tree.xpath('/response/ConnectMode')
+        if len(matches) < 1:
+            raise WebCubeApiException.missing_content_exception()
+
+        conn_mode = int(matches[0].text)
+        return conn_mode == 0
 
     @staticmethod
     def _get_token_from_html(content: str):
@@ -207,4 +200,4 @@ class _WebCube:
         return csrf_tokens[-1]
 
 
-web_cube = _WebCube()
+web_cube_api = _WebCubeApi()

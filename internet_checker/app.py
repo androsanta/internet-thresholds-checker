@@ -2,15 +2,15 @@ import json
 import logging
 from datetime import datetime
 
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, render_template, abort
 
-from src import tasks
-from src.database import database
-from src.web_cube import web_cube, WebCubeException
+from . import web_cube
+from .database import database
+from .scheduler import scheduler
+from .web_cube_api import WebCubeApiException
 
 app = Flask(__name__)
-
+scheduler.start()
 logging.basicConfig(level=logging.INFO)
 
 
@@ -24,16 +24,12 @@ def entry_point():
 @app.route('/remaining_data')
 def get_remaining_data():
     try:
-        if not web_cube.connection_enabled:
-            return "Not connected"  # todo
-        return json.dumps(web_cube.get_remaining_data().to_dict())
-    except WebCubeException:
+        status = web_cube.get_status()
+        reading = status.get('reading')
+        if not reading:
+            status['reading'] = database.get_last()
+
+        status['reading'] = status['reading'].to_dict()
+        return json.dumps(status)
+    except WebCubeApiException:
         abort(status=500)
-
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(tasks.check_threshold, 'cron', minute='10,30,50', hour='0,7-23')
-scheduler.start()
-
-if __name__ == '__main__':
-    app.run()
