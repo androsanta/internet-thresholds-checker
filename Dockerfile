@@ -16,4 +16,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 EXPOSE 8080
-ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:8080", "internet-checker:app"]
+ENTRYPOINT ["gunicorn", "-b", "0.0.0.0:8080", "internet_checker:app"]
