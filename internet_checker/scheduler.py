@@ -2,6 +2,7 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from internet_checker.web_cube_api import WebCubeApiException
 from . import web_cube
 from .database import database
 
@@ -9,12 +10,16 @@ logger = logging.getLogger(__name__)
 
 
 def _task():
-    status = web_cube.get_status()
-    reading = status.get('reading')
-    logger.info(f'WebCube status: {status}')
-    if reading:
-        database.save_reading(reading)
-        logger.info(f'Reading: {reading.to_dict()}')
+    try:
+        status = web_cube.get_status()
+    except WebCubeApiException:
+        logger.warning('WebCubeApiException, cannot get status')
+    else:
+        reading = status.get('reading')
+        logger.info(f'WebCube status: {status}')
+        if reading:
+            database.save_reading(reading)
+            logger.info(f'Reading: {reading.to_dict()}')
 
 
 scheduler = BackgroundScheduler()
