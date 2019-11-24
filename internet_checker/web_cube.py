@@ -9,17 +9,6 @@ from .web_cube_api import web_cube_api, WebCubeApiException
 logger = logging.getLogger(__name__)
 _threshold = config['disconnect_threshold']
 
-
-def has_traffic_exceeded(reading: Reading) -> bool:
-    now = datetime.now()
-    if now.hour >= 8:  # daytime
-        daily_traffic_exceeded = reading.daily_traffic_left_gb < 0.8 and reading.days_to_renew > 1
-        threshold_exceeded = reading.percentage <= _threshold
-        return daily_traffic_exceeded or threshold_exceeded
-    else:  # nighttime
-        return False
-
-
 _connection_enabled = None
 _traffic_exceeded = None
 
@@ -67,13 +56,19 @@ def get_status():
     reading = None
     if _connection_enabled:
         reading = _get_reading()
-        if has_traffic_exceeded(reading):
-            _set_connection_enabled(False)
-            _traffic_exceeded = True
-            logger.info('Traffic exceeded')
-        else:
-            _set_connection_enabled(True)
-            _traffic_exceeded = False
+
+    now = datetime.now()
+    if now.hour >= 8:  # daytime
+        if reading:
+            daily_traffic_exceeded = reading.daily_traffic_left_gb < 0.8 and reading.days_to_renew > 1
+            threshold_exceeded = reading.percentage <= _threshold
+            if daily_traffic_exceeded and threshold_exceeded:
+                _set_connection_enabled(False)
+                _traffic_exceeded = True
+                logger.info('Traffic exceeded')
+    else:  # nighttime
+        _set_connection_enabled(True)
+        _traffic_exceeded = False
 
     return {
         'reading': reading,

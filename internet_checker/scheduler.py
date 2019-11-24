@@ -10,10 +10,11 @@ logger = logging.getLogger(__name__)
 
 def _task():
     status = web_cube.get_status()
-    logger.info(f'WebCube status: {status}')
     reading = status.get('reading')
+    logger.info(f'WebCube status: {status}')
     if reading:
         database.save_reading(reading)
+        logger.info(f'Reading: {reading.to_dict()}')
 
 
 scheduler = BackgroundScheduler()
