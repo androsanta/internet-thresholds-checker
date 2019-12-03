@@ -51,7 +51,9 @@ class _WebCubeApi:
     _gateway_urls = {
         'api_login': f'{_gateway_base_url}/api/user/login',
         'html_connection': f'{_gateway_base_url}/html/mobileconnection.html',
-        'api_connection': f'{_gateway_base_url}/api/dialup/connection'
+        'api_connection': f'{_gateway_base_url}/api/dialup/connection',
+        'html_reboot': f'{_gateway_base_url}/html/reboot.html',
+        'api_reboot': f'{_gateway_base_url}/api/device/control'
     }
 
     @classmethod
@@ -191,6 +193,26 @@ class _WebCubeApi:
 
         conn_mode = int(matches[0].text)
         return conn_mode == 0
+
+    @classmethod
+    @catch_connection_exception
+    def reboot(cls):
+        session = cls.get_login_session()
+
+        reboot_html = session.get(cls._gateway_urls['html_reboot']).content
+        token = cls._get_token_from_html(reboot_html)
+
+        req_data_xml = E.request(E.Control(str(1)))
+        req_data = etree.tostring(req_data_xml, xml_declaration=True, encoding='UTF-8')
+
+        res = session.post(
+            cls._gateway_urls['api_reboot'], data=req_data,
+            headers={
+                '__RequestVerificationToken': token,
+                'Referer': cls._gateway_urls['html_reboot']
+            })
+        if not res:
+            raise WebCubeApiException.connection_exception()
 
     @staticmethod
     def _get_token_from_html(content: str):

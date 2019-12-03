@@ -9,7 +9,7 @@ from .database import database
 logger = logging.getLogger(__name__)
 
 
-def _task():
+def _reading_task():
     try:
         status = web_cube.get_status()
     except WebCubeApiException:
@@ -22,5 +22,14 @@ def _task():
             logger.info(f'Reading: {reading.to_dict()}')
 
 
+def _reboot_task():
+    try:
+        web_cube.reboot()
+        logger.info('WebCube rebooted')
+    except WebCubeApiException:
+        logger.warning('WebCubeApiException, cannot reboot')
+
+
 scheduler = BackgroundScheduler()
-scheduler.add_job(_task, 'cron', minute='10,30,50', hour='0,7-23')
+scheduler.add_job(_reading_task, 'cron', minute='10,30,50', hour='0,7-23')
+scheduler.add_job(_reboot_task, 'cron', minute='5', hour='0')

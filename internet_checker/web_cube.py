@@ -75,3 +75,7 @@ def get_status():
         'connected': _connection_enabled,
         'traffic_exceeded': _traffic_exceeded
     }
+
+
+def reboot():
+    web_cube_api.reboot()
