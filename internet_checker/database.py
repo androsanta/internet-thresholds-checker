@@ -4,6 +4,8 @@ from pymongo import MongoClient
 
 from .config import config
 
+_threshold = config['disconnect_threshold']
+
 
 class Reading:
     def __init__(self, remaining_gb: float = None, total_gb: float = None):
@@ -14,8 +16,9 @@ class Reading:
         self.total_gb = total_gb
         self.date = datetime.now()
         self.days_to_renew = 7 - ((self.date.weekday() + 1) % 7)
-        self.daily_traffic_left_gb = (
-                remaining_gb / self.days_to_renew) if self.days_to_renew > 1 else remaining_gb
+        actual_remaining = remaining_gb - (total_gb / 100) * _threshold
+        self.daily_traffic_left_gb = (actual_remaining / (self.days_to_renew - 1)
+                                      ) if self.days_to_renew > 1 else remaining_gb
         self.percentage = (remaining_gb / total_gb) * 100
 
     def to_dict(self) -> dict:
