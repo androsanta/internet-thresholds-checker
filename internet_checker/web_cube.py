@@ -7,8 +7,8 @@ from .database import Reading
 from .web_cube_api import web_cube_api, WebCubeApiException
 
 logger = logging.getLogger(__name__)
-_threshold = config['disconnect_threshold']
-_daily_threshold = config['daily_remaining_threshold']
+_threshold = config['DISCONNECT_THRESHOLD']
+_daily_threshold = config['DAILY_THRESHOLD']
 
 _connection_enabled = None
 _traffic_exceeded = None
@@ -74,7 +74,7 @@ def get_status():
     return {
         'reading': reading,
         'connected': _connection_enabled,
-        'traffic_exceeded': _traffic_exceeded
+        'trafficExceeded': _traffic_exceeded
     }
 
 

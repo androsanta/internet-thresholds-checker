@@ -1,9 +1,21 @@
+import logging
 import os
 
+from dotenv import load_dotenv
+
+logger = logging.getLogger(__name__)
+load_dotenv()
+
 config = {
-    'web_cube_username': os.environ['USERNAME'],
-    'web_cube_password': os.environ['PASSWORD'],
-    'db_host': os.environ['DATABASE'] if os.environ.get('DATABASE') else 'localhost',
-    'disconnect_threshold': os.environ['DISCONNECT_THRESHOLD'] if os.environ.get('DISCONNECT_THRESHOLD') else 5,
-    'daily_remaining_threshold': os.environ['DAILY_THRESHOLD'] if os.environ.get('DAILY_THRESHOLD') else 0.8
+    'USERNAME': os.getenv('USERNAME'),
+    'PASSWORD': os.getenv('PASSWORD'),
+    'DATABASE_HOST': os.getenv('DATABASE_HOST', 'localhost'),
+    'DISCONNECT_THRESHOLD': os.getenv('DISCONNECT_THRESHOLD', 5),
+    'DAILY_THRESHOLD': os.getenv('DAILY_THRESHOLD', 0.9)
 }
+
+not_set = list(filter(lambda k: config[k] is None, config.keys()))
+if len(not_set) > 0:
+    msg = 'This environment variables must be set: ' + ', '.join(not_set)
+    logger.error(msg)
+    exit(1)

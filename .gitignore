@@ -111,6 +111,3 @@ venv.bak/
 
 # VsCode
 .vscode/
-
-# Env file
-api.env

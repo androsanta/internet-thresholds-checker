@@ -36,8 +36,8 @@ class WebCubeApiException(Exception):
 
 
 class _WebCubeApi:
-    _username = config['web_cube_username']
-    _password = config['web_cube_password']
+    _username = config['USERNAME']
+    _password = config['PASSWORD']
 
     _remaining_base_url = 'http://internet.tre.it'
     _remaining_api_url = f'{_remaining_base_url}/calls/checkMSISDN.aspx'

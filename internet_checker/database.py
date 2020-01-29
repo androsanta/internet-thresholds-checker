@@ -4,7 +4,7 @@ from pymongo import MongoClient
 
 from .config import config
 
-_threshold = config['disconnect_threshold']
+_threshold = config['DISCONNECT_THRESHOLD']
 
 
 class Reading:
@@ -44,7 +44,7 @@ class Reading:
 
 
 class _Database:
-    _host = config['db_host']
+    _host = config['DATABASE_HOST']
     _port = 27017
 
     def __init__(self):
@@ -59,8 +59,7 @@ class _Database:
         normalised_weekday = (date.weekday() + 1) % 7
         week_start: datetime = (date - timedelta(days=normalised_weekday)) \
             .replace(hour=0, minute=0, second=0, microsecond=0)
-        week_end: datetime = week_start + \
-                             timedelta(days=7) - timedelta(microseconds=1)
+        week_end: datetime = week_start + timedelta(days=7) - timedelta(microseconds=1)
         week_start_iso = week_start.isoformat()
         week_end_iso = week_end.isoformat()
         readings = list(self._readings
