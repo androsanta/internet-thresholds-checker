@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from .config import config
 
 _threshold = config['DISCONNECT_THRESHOLD']
+_daily_threshold = config['DAILY_THRESHOLD']
 
 
 class Reading:
@@ -14,21 +15,24 @@ class Reading:
 
         self.remaining_gb = remaining_gb
         self.total_gb = total_gb
+        self.percentage = (remaining_gb / total_gb) * 100
         self.date = datetime.now()
         self.days_to_renew = 7 - ((self.date.weekday() + 1) % 7)
-        actual_remaining = remaining_gb - (total_gb / 100) * _threshold
-        self.daily_traffic_left_gb = (actual_remaining / (self.days_to_renew - 1)
-                                      ) if self.days_to_renew > 1 else remaining_gb
-        self.percentage = (remaining_gb / total_gb) * 100
+        self.actual_remaining_gb = remaining_gb - (total_gb / 100) * _threshold
+        self.mean_daily_left_gb = (self.actual_remaining_gb / (self.days_to_renew - 1)
+                                   ) if self.days_to_renew > 1 else self.actual_remaining_gb
+        self.actual_daily_left_gb = self.actual_remaining_gb - (_daily_threshold * (self.days_to_renew - 1))
 
     def to_dict(self) -> dict:
         return {
             'remainingGb': self.remaining_gb,
             'totalGb': self.total_gb,
+            'percentage': self.percentage,
             'date': str(self.date.isoformat()),
             'daysToRenew': self.days_to_renew,
-            'dailyTrafficLeftGb': self.daily_traffic_left_gb,
-            'percentage': self.percentage
+            'actualRemainingGb': self.actual_remaining_gb,
+            'meanDailyLeftGb': self.mean_daily_left_gb,
+            'actualDailyLeftGb': self.actual_daily_left_gb
         }
 
     @staticmethod
@@ -36,10 +40,12 @@ class Reading:
         reading = Reading()
         reading.remaining_gb = reading_dict['remainingGb']
         reading.total_gb = reading_dict['totalGb']
+        reading.percentage = reading_dict['percentage']
         reading.date = datetime.fromisoformat(reading_dict['date'])
         reading.days_to_renew = reading_dict['daysToRenew']
-        reading.daily_traffic_left_gb = reading_dict['dailyTrafficLeftGb']
-        reading.percentage = reading_dict['percentage']
+        reading.actual_remaining_gb = reading_dict['actualRemainingGb']
+        reading.mean_daily_left_gb = reading_dict['meanDailyLeftGb']
+        reading.actual_daily_left_gb = reading_dict['actualDailyLeftGb']
         return reading
 
 

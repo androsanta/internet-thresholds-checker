@@ -61,7 +61,7 @@ def get_status():
     now = datetime.now()
     if now.hour >= 8:  # daytime
         if reading:
-            daily_traffic_exceeded = reading.daily_traffic_left_gb < _daily_threshold and reading.days_to_renew > 1
+            daily_traffic_exceeded = reading.mean_daily_left_gb < _daily_threshold and reading.days_to_renew > 1
             threshold_exceeded = reading.percentage <= _threshold
             if daily_traffic_exceeded or threshold_exceeded:
                 _set_connection_enabled(False)
