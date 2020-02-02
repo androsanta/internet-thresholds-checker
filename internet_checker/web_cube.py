@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 
 from .config import config
-from .database import Reading
+from .database import Reading, database
 from .web_cube_api import web_cube_api, WebCubeApiException
 
 logger = logging.getLogger(__name__)
@@ -70,6 +70,9 @@ def get_status():
     else:  # nighttime
         _set_connection_enabled(True)
         _traffic_exceeded = False
+
+    if not reading:
+        reading = database.get_last_reading()
 
     return {
         'reading': reading,

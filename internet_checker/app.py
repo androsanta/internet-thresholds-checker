@@ -25,11 +25,8 @@ def get_weekly_readings():
 def get_remaining_data():
     try:
         status = web_cube.get_status()
-        reading = status.get('reading')
-        if not reading:
-            status['reading'] = database.get_last_reading()
-
-        status['reading'] = status['reading'].to_dict()
+        if status.get('reading'):
+            status['reading'] = status['reading'].to_dict()
         return json.dumps(status)
     except WebCubeApiException:
         abort(status=500)
