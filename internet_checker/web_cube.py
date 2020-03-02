@@ -11,7 +11,7 @@ _threshold = config['DISCONNECT_THRESHOLD']
 _daily_threshold = config['DAILY_THRESHOLD']
 
 _connection_enabled = None
-_traffic_exceeded = None
+_traffic_exceeded = False
 
 
 def _set_connection_enabled(enabled: bool):
@@ -45,7 +45,7 @@ def get_status():
             enabled = web_cube_api.get_mobile_connection()
         except WebCubeApiException:
             _connection_enabled = None
-            _traffic_exceeded = None
+            _traffic_exceeded = False
             logger.info('WebCube cannot be reached')
         else:
             _connection_enabled = enabled
@@ -71,7 +71,7 @@ def get_status():
         _set_connection_enabled(True)
         _traffic_exceeded = False
 
-    if not reading:
+    if not reading:  # remove from here
         reading = database.get_last_reading()
 
     return {

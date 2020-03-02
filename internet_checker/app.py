@@ -10,8 +10,8 @@ from .scheduler import scheduler
 from .web_cube_api import WebCubeApiException
 
 app = Flask(__name__)
-scheduler.start()
 logging.basicConfig(level=logging.INFO)
+scheduler.start()
 
 
 @app.route('/weekly_readings', methods=['GET'])

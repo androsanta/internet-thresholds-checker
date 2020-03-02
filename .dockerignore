@@ -1,1 +1,8 @@
 venv/
+web-app/
+.env
+.gitignore
+LICENSE
+README.md
+Dockerfile
+docker-compose.yml

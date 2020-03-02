@@ -1,6 +1,7 @@
 FROM python:3.7.4-alpine
 
-RUN apk add --no-cache --virtual .build-deps gcc libc-dev libxslt-dev libxslt tzdata
+RUN apk add --no-cache --virtual .build-deps gcc libc-dev \
+    libxslt-dev libxslt libffi-dev tzdata libressl-dev musl-dev
 ENV TZ Europe/Rome
 
 WORKDIR /app

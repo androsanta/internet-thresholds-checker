@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 def _reading_task():
     try:
+        print('Getting status')
         status = web_cube.get_status()
     except WebCubeApiException:
         logger.warning('WebCubeApiException, cannot get status')
@@ -18,7 +19,9 @@ def _reading_task():
         reading = status.get('reading')
         logger.info(f'WebCube status: {status}')
         if reading:
+            print('Saving reading')
             database.save_reading(reading)
+            print('Reading saved')
             logger.info(f'Reading: {reading.to_dict()}')
 
 
