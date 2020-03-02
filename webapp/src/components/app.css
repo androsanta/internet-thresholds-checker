@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    background-color: #303336;
+}
+
+.no-pad {
+    padding: 0 !important;
+}
+
+.toolbar {
+    background-color: #9ba8a8 !important;
+    margin: 15px;
+    box-shadow: 5px 10px #0f6674;
+}
+
+.title {
+    height: 60px;
+    margin-left: 15px;
+}

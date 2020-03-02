@@ -51,7 +51,7 @@ class Reading:
 
 class _Database:
     _host = config['DATABASE_HOST']
-    _port = config['DATABASE_PORT']
+    _port = 27017
 
     def __init__(self):
         self._mongo_client = MongoClient(self._host, self._port)

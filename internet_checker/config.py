@@ -10,7 +10,6 @@ config = {
     'USERNAME': os.getenv('USERNAME'),
     'PASSWORD': os.getenv('PASSWORD'),
     'DATABASE_HOST': os.getenv('DATABASE_HOST', 'localhost'),
-    'DATABASE_PORT': os.getenv('DATABASE_PORT', 27017),
     'DISCONNECT_THRESHOLD': os.getenv('DISCONNECT_THRESHOLD', 5),
     'DAILY_THRESHOLD': os.getenv('DAILY_THRESHOLD', 0.9)
 }

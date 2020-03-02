@@ -1,0 +1,32 @@
+.background {
+    background-color: #9ba8a8 !important;
+    margin: 15px;
+    position: relative;
+}
+
+.content {
+    padding: 5px 10px 5px 10px;
+    position: relative;
+    min-height: 30px;
+}
+
+.refresh-fab {
+    position: absolute !important;
+    right: 15px;
+    bottom: -28px;
+}
+
+.circle {
+    height: 12px;
+    width: 12px;
+    border-radius: 6px;
+    margin-left: 5px;
+}
+
+.green {
+    background-color: green;
+}
+
+.red {
+    background-color: red;
+}

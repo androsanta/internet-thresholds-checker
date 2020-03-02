@@ -4,23 +4,18 @@ services:
     build: .
     environment:
       - DATABASE_HOST=mongo
-      - DATABASE_PORT=6001
-    ports:
-      - "6000:8080"
+    env_file:
+      - .env
     depends_on:
       - mongo
     restart: unless-stopped
   mongo:
     image: mongo
-    ports:
-      - "6001:27017"
     restart: unless-stopped
   web-app:
-    build: internet-checker-webapp
-    environment:
-      - REST_API="api:6000"
+    build: webapp
     ports:
-      - "6002:80"
+      - "5000:80"
     depends_on:
       - api
     restart: unless-stopped
