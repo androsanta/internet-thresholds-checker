@@ -1,8 +1,8 @@
 import logging
+from dataclasses import asdict
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from internet_checker.web_cube_api import WebCubeApiException
 from . import web_cube
 from .database import database
 
@@ -11,25 +11,25 @@ logger = logging.getLogger(__name__)
 
 def _reading_task():
     try:
-        print('Getting status')
+        logger.info('Getting status')
         status = web_cube.get_status()
-    except WebCubeApiException:
+        logger.info(f'WebCube status: {status}')
+    except:
         logger.warning('WebCubeApiException, cannot get status')
     else:
-        reading = status.get('reading')
-        logger.info(f'WebCube status: {status}')
-        if reading:
-            print('Saving reading')
-            database.save_reading(reading)
-            print('Reading saved')
-            logger.info(f'Reading: {reading.to_dict()}')
+        if status.reading:
+            logger.info('Saving reading')
+            database.save_reading(status.reading)
+            logger.info('Reading saved')
+            logger.info(f'Reading: {asdict(status.reading)}')
 
 
 def _reboot_task():
     try:
+        logger.info('Rebooting WebCube')
         web_cube.reboot()
         logger.info('WebCube rebooted')
-    except WebCubeApiException:
+    except:
         logger.warning('WebCubeApiException, cannot reboot')
 
 

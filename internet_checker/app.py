@@ -1,13 +1,15 @@
 import json
 import logging
+from dataclasses import asdict
 from datetime import datetime
 
-from flask import Flask, abort
+from flask import Flask, make_response
 
 from . import web_cube
 from .database import database
+from .models import StatusResponse
 from .scheduler import scheduler
-from .web_cube_api import WebCubeApiException
+from .web_cube import Status
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -17,16 +19,15 @@ scheduler.start()
 @app.route('/weekly_readings', methods=['GET'])
 def get_weekly_readings():
     weekly_readings = database.get_weekly_readings(datetime.now())
-    weekly_readings['readings'] = list(map(lambda r: r.to_dict(), weekly_readings['readings']))
+    weekly_readings['readings'] = list(map(asdict, weekly_readings['readings']))
     return json.dumps(weekly_readings)
 
 
 @app.route('/status', methods=['GET'])
 def get_remaining_data():
     try:
-        status = web_cube.get_status()
-        if status.get('reading'):
-            status['reading'] = status['reading'].to_dict()
-        return json.dumps(status)
-    except WebCubeApiException:
-        abort(status=500)
+        status: Status = web_cube.get_status()
+        details = status.reading.get_detailed_status() if status.reading else None
+        return json.dumps(asdict(StatusResponse(status, details)))
+    except Exception as e:
+        return make_response(json.dumps({'message': str(e)}), 500)

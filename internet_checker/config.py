@@ -9,6 +9,7 @@ load_dotenv()
 config = {
     'USERNAME': os.getenv('USERNAME'),
     'PASSWORD': os.getenv('PASSWORD'),
+    'MOBILE_NUMBER': os.getenv('MOBILE_NUMBER'),
     'DATABASE_HOST': os.getenv('DATABASE_HOST', 'localhost'),
     'DISCONNECT_THRESHOLD': os.getenv('DISCONNECT_THRESHOLD', 5),
     'DAILY_THRESHOLD': os.getenv('DAILY_THRESHOLD', 0.9)
