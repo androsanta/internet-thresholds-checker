@@ -1,21 +1,21 @@
 export interface DetailedStatus {
     percentage: number
-    daysToRenew: number
-    actualRemainingGb: number
-    meanDailyLeftGb: number
-    actualDailyLeftGb: number
+    days_to_renew: number
+    actual_remaining_gb: number
+    mean_daily_left_gb: number
+    actual_daily_left_gb: number
 }
 
 export interface Reading {
-    totalGb: number
-    remainingGb: number
+    total_gb: number
+    remaining_gb: number
     date: string
 }
 
 export interface Status {
     reading: Reading
     connected: boolean
-    trafficExceeded: boolean
+    traffic_exceeded: boolean
 }
 
 export interface StatusResponse {

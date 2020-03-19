@@ -10,9 +10,9 @@ interface props {
 }
 
 const WebCubeStatusContent: React.FC<props> = ({status, details}) => {
-    const {connected, reading, trafficExceeded} = status
-    const {date, remainingGb, totalGb} = reading
-    const {percentage, daysToRenew, meanDailyLeftGb, actualDailyLeftGb} = details
+    const {connected, reading, traffic_exceeded: trafficExceeded} = status
+    const {date, remaining_gb: remainingGb, total_gb: totalGb} = reading
+    const {percentage, days_to_renew: daysToRenew, mean_daily_left_gb: meanDailyLeftGb, actual_daily_left_gb: actualDailyLeftGb} = details
 
     const nextRenewMsg = `Next renew in ${daysToRenew} day${daysToRenew > 1 ? 's' : ''} (${meanDailyLeftGb.toFixed(2)} Gb daily)`
 
