@@ -25,8 +25,8 @@ class Reading:
 
     @staticmethod
     def from_dict(reading_dict):
-        total_gb = reading_dict['totalGb']
-        remaining_gb = reading_dict['remainingGb']
+        total_gb = reading_dict['total_gb']
+        remaining_gb = reading_dict['remaining_gb']
         return Reading(total_gb, remaining_gb)
 
     def get_detailed_status(self) -> DetailedStatus:
