@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import List
 
 from .config import config
 
@@ -49,3 +50,10 @@ class Status:
 class StatusResponse:
     status: Status
     details: DetailedStatus
+
+
+@dataclass
+class ReadingGroup:
+    readings: List[Reading]
+    start_date_iso: str
+    end_date_iso: str

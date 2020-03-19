@@ -1,7 +1,6 @@
 import json
 import logging
 from dataclasses import asdict
-from datetime import datetime
 
 from flask import Flask, make_response
 
@@ -18,9 +17,8 @@ scheduler.start()
 
 @app.route('/weekly_readings', methods=['GET'])
 def get_weekly_readings():
-    weekly_readings = database.get_weekly_readings(datetime.now())
-    weekly_readings['readings'] = list(map(asdict, weekly_readings['readings']))
-    return json.dumps(weekly_readings)
+    weekly_readings = database.get_weekly_readings()
+    return json.dumps(asdict(weekly_readings))
 
 
 @app.route('/status', methods=['GET'])

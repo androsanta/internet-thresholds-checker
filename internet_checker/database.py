@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 
 from .config import config
-from .models import Reading
+from .models import Reading, ReadingGroup
 
 
 class _Database:
@@ -19,7 +19,7 @@ class _Database:
     def save_reading(self, reading: Reading):
         self._readings.insert_one(asdict(reading))
 
-    def get_weekly_readings(self):
+    def get_weekly_readings(self) -> ReadingGroup:
         date = datetime.now()
         normalised_weekday = (date.weekday() + 1) % 7
         week_start: datetime = (date - timedelta(days=normalised_weekday)) \
@@ -31,15 +31,11 @@ class _Database:
                         .find({'date': {'$gt': week_start_iso, '$lt': week_end_iso}})
                         .sort('date'))
         readings = list(map(Reading.from_dict, readings))
-        return {
-            'readings': readings,
-            'startDate': week_start.isoformat(),
-            'endDate': week_end.isoformat()
-        }
+        return ReadingGroup(readings, week_start.isoformat(), week_end.isoformat())
 
-    def get_last_reading(self):
-        result = self.get_weekly_readings()
-        readings = result['readings']
+    def get_last_reading(self) -> Reading or None:
+        reading_group = self.get_weekly_readings()
+        readings = reading_group.readings
         if len(readings) > 0:
             return readings[-1]
         return None
