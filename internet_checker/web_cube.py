@@ -4,6 +4,7 @@ from datetime import datetime
 
 from . import web_cube_api
 from .config import config
+from .database import database
 from .models import Status
 
 logger = logging.getLogger(__name__)
@@ -45,9 +46,11 @@ def get_status() -> Status:
             _traffic_exceeded = False
             logger.info('WebCube cannot be reached')
 
-    reading = None
     if _connection_enabled:
         reading = web_cube_api.get_reading()
+        database.save_reading(reading)
+    else:
+        reading = database.get_last_reading()
 
     now = datetime.now()
     if now.hour >= 8:  # daytime

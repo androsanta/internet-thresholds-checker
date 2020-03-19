@@ -45,14 +45,15 @@ export const WebCubeStatus: React.FC = () => {
     const [errorMsg, setErrorMsg] = useState<string | undefined>()
 
     const getStatus = () => {
-        console.log('fetching data')
         setIsLoading(true)
         fetch(`api/status`)
             .then(res => res.json())
             .then(res => {
-                console.log('data', res)
                 setStatusResponse(res)
-                setErrorMsg(undefined)
+                if (!res.status.reading)
+                    setErrorMsg('No reading provided')
+                else
+                    setErrorMsg(undefined)
             })
             .catch(setErrorMsg)
             .finally(() => setIsLoading(false))
@@ -60,7 +61,7 @@ export const WebCubeStatus: React.FC = () => {
 
     useEffect(getStatus, [])
     // @ts-ignore
-    const content = statusResponse &&
+    const content = statusResponse && !errorMsg &&
         <WebCubeStatusContent status={statusResponse.status} details={statusResponse.details}/>
     return (
         <Paper className='background'>
