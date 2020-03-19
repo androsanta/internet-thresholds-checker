@@ -1,32 +1,18 @@
 import React, {useEffect, useState} from 'react'
 import './style.css'
-import {Box, Fab, Icon, LinearProgress, Paper, Snackbar, Typography} from '@material-ui/core'
+import {Box, CircularProgress, Fab, Icon, LinearProgress, Paper, Typography} from '@material-ui/core'
 import moment from 'moment'
-
-
-interface Reading {
-    date: string
-    percentage: number
-    remainingGb: number
-    totalGb: number
-    actualDailyLeftGb: number
-    daysToRenew: number
-    meanDailyLeftGb: number
-}
-
-interface Status {
-    connected: boolean
-    reading: Reading
-    trafficExceeded: boolean
-}
+import {DetailedStatus, Status, StatusResponse} from '../../models'
 
 interface props {
     status: Status
+    details: DetailedStatus
 }
 
-const WebCubeStatusContent: React.FC<props> = ({status}) => {
+const WebCubeStatusContent: React.FC<props> = ({status, details}) => {
     const {connected, reading, trafficExceeded} = status
-    const {date, percentage, remainingGb, totalGb, actualDailyLeftGb, daysToRenew, meanDailyLeftGb} = reading
+    const {date, remainingGb, totalGb} = reading
+    const {percentage, daysToRenew, meanDailyLeftGb, actualDailyLeftGb} = details
 
     const nextRenewMsg = `Next renew in ${daysToRenew} day${daysToRenew > 1 ? 's' : ''} (${meanDailyLeftGb.toFixed(2)} Gb daily)`
 
@@ -39,11 +25,11 @@ const WebCubeStatusContent: React.FC<props> = ({status}) => {
                 <Typography>{connected ? 'Connected' : 'Not connected'}</Typography>
                 <div className={`circle ${connected ? 'green' : 'red'}`}/>
             </Box>
-            <Typography variant='h5'>{mainMessage}</Typography>
+            <Typography variant='h5' style={trafficExceeded ? {color: 'red'} : {}}>{mainMessage}</Typography>
             <Typography>{nextRenewMsg}</Typography>
             <Typography>Remaining: {remainingGb.toFixed(2)} / {totalGb.toFixed(2)} Gb</Typography>
             <Box display='flex' flexDirection='row' alignItems='center' justifyContent='center'>
-                <Typography>{(+percentage).toFixed(2)}%</Typography>
+                <Typography>{percentage.toFixed(2)}%</Typography>
                 <LinearProgress variant='determinate' value={percentage}
                                 style={{height: '10px', width: '80%', borderRadius: '5px', marginLeft: '10px'}}/>
             </Box>
@@ -54,29 +40,42 @@ const WebCubeStatusContent: React.FC<props> = ({status}) => {
 }
 
 export const WebCubeStatus: React.FC = () => {
-    const [status, setStatus] = useState(null)
-    const [open, setOpen] = useState(false)
+    const [statusResponse, setStatusResponse] = useState<StatusResponse | undefined>()
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [errorMsg, setErrorMsg] = useState<string | undefined>()
 
     const getStatus = () => {
+        console.log('fetching data')
+        setIsLoading(true)
         fetch(`api/status`)
             .then(res => res.json())
-            .then(setStatus)
-            .catch(() => setOpen(true))
+            .then(res => {
+                console.log('data', res)
+                setStatusResponse(res)
+                setErrorMsg(undefined)
+            })
+            .catch(setErrorMsg)
+            .finally(() => setIsLoading(false))
     }
 
     useEffect(getStatus, [])
     // @ts-ignore
-    const content = status !== null && <WebCubeStatusContent status={status}/>
+    const content = statusResponse &&
+        <WebCubeStatusContent status={statusResponse.status} details={statusResponse.details}/>
     return (
         <Paper className='background'>
             <div className='content'>
                 {content}
+                {isLoading && <div className='loader'>
+                    <CircularProgress/>
+                </div>}
+                {errorMsg && <div className='loader'>
+                    <Typography>{errorMsg.toString()}</Typography>
+                </div>}
             </div>
-            <Fab className='refresh-fab' onClick={getStatus}>
+            <Fab disabled={isLoading} className='refresh-fab' onClick={getStatus}>
                 <Icon>refresh</Icon>
             </Fab>
-            <Snackbar open={open} autoHideDuration={5000} onClose={() => setOpen(false)}
-                      message='Error getting status'/>
         </Paper>
     )
 }
