@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 
 import lxml.etree as etree
 import requests
@@ -67,7 +68,7 @@ def get_reading() -> Reading:
 
         total_gb = initial_amount_mb / 1000
         remaining_gb = (initial_amount_mb - used_amount_mb) / 1000
-        return Reading(total_gb, remaining_gb)
+        return Reading(total_gb, remaining_gb, datetime.now())
 
 
 def _get_token_from_html(content: str):

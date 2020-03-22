@@ -7,6 +7,17 @@ from .config import config
 from .models import Reading, ReadingGroup
 
 
+def _dict_factory_handle_date(fields):
+    result = {}
+    for name, value in fields:
+        result[name] = value.isoformat() if isinstance(value, datetime) else value
+    return result
+
+
+def my_asdict(obj):
+    return asdict(obj, dict_factory=_dict_factory_handle_date)
+
+
 class _Database:
     _host = config['DATABASE_HOST']
     _port = 27017
@@ -17,7 +28,7 @@ class _Database:
         self._readings = self._itc_db.readings
 
     def save_reading(self, reading: Reading):
-        self._readings.insert_one(asdict(reading))
+        self._readings.insert_one(my_asdict(reading))
 
     def get_weekly_readings(self) -> ReadingGroup:
         date = datetime.now()
@@ -31,7 +42,7 @@ class _Database:
                         .find({'date': {'$gt': week_start_iso, '$lt': week_end_iso}})
                         .sort('date'))
         readings = list(map(Reading.from_dict, readings))
-        return ReadingGroup(readings, week_start.isoformat(), week_end.isoformat())
+        return ReadingGroup(readings, week_start, week_end)
 
     def get_last_reading(self) -> Reading or None:
         reading_group = self.get_weekly_readings()

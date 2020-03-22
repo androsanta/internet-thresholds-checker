@@ -21,13 +21,14 @@ class DetailedStatus:
 class Reading:
     total_gb: float
     remaining_gb: float
-    date = datetime.now()
+    date: datetime
 
     @staticmethod
     def from_dict(reading_dict):
         total_gb = reading_dict['total_gb']
         remaining_gb = reading_dict['remaining_gb']
-        return Reading(total_gb, remaining_gb)
+        date = datetime.fromisoformat(reading_dict['date'])
+        return Reading(total_gb, remaining_gb, date)
 
     def get_detailed_status(self) -> DetailedStatus:
         percentage = (self.remaining_gb / self.total_gb) * 100
@@ -55,5 +56,5 @@ class StatusResponse:
 @dataclass
 class ReadingGroup:
     readings: List[Reading]
-    start_date_iso: str
-    end_date_iso: str
+    start_date: datetime
+    end_date: datetime

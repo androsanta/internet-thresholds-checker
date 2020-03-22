@@ -1,10 +1,9 @@
 import logging
-from dataclasses import asdict
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from . import web_cube
-from .database import database
+from .database import database, my_asdict
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ def _reading_task():
             logger.info('Saving reading')
             database.save_reading(status.reading)
             logger.info('Reading saved')
-            logger.info(f'Reading: {asdict(status.reading)}')
+            logger.info(f'Reading: {my_asdict(status.reading)}')
 
 
 def _reboot_task():
