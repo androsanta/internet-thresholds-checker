@@ -39,7 +39,7 @@ def get_reading() -> Reading:
         headers = {
             'Content-Type': 'application/json',
             'X-Brand': 'ONEBRAND',
-            'X-Wind-Client': 'Web',
+            'X-Wind-Client': 'Web'
         }
         login_response = s.post(_api_login, json.dumps(credentials), headers=headers)
 
