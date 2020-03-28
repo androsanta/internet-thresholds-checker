@@ -67,7 +67,7 @@ class WcmWidget : AppWidgetProvider() {
                 val actualDailyLeftText = if (actualDailyLeftGb > 1) {
                     "${actualDailyLeftGb.format(2)} Gb"
                 } else {
-                    "${(actualDailyLeftGb * 100).format(0)} Mb"
+                    "${(actualDailyLeftGb * 1000).format(0)} Mb"
                 }
                 setTextViewText(R.id.actual_left_day, actualDailyLeftText)
 
