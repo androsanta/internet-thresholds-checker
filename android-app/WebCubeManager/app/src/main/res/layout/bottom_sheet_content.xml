@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/username"
+            android:textColor="?android:textColorSecondary"
+    />
+
+    <EditText
+            android:id="@+id/username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:inputType="textAutoComplete|textEmailAddress"
+            android:textColor="?android:textColorPrimary"
+            tools:ignore="HardcodedText,LabelFor"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/password"
+            android:textColor="?android:textColorSecondary"
+    />
+
+    <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:inputType="textPassword"
+            android:textColor="?android:textColorPrimary"
+            tools:ignore="HardcodedText,LabelFor"
+    />
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/msisdn_phone_number"
+            android:textColor="?android:textColorSecondary"
+    />
+
+    <EditText
+            android:id="@+id/msisdn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:inputType="phone"
+            android:textColor="?android:textColorPrimary"
+            tools:ignore="HardcodedText,LabelFor"
+    />
+
+</LinearLayout>

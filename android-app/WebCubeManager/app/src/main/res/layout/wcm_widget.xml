@@ -1,0 +1,124 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/card"
+                android:padding="@dimen/widget_margin">
+
+    <TextView
+            android:text="@string/today"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/today"
+            android:textColor="@android:color/white" android:textSize="24sp"
+            android:layout_alignTop="@+id/actual_left_day" android:layout_marginTop="0dp"/>
+
+    <TextView
+            android:text="@string/no_data"
+            android:layout_width="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_height="wrap_content" android:id="@+id/actual_left_day"
+            android:textColor="@android:color/white" android:textSize="36sp" android:textStyle="bold"/>
+
+    <TextView
+            android:text="@string/next_renew"
+            android:layout_width="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:layout_alignTop="@id/next_renew_daily_left"
+            android:layout_height="wrap_content" android:id="@+id/renew"
+            android:textColor="@android:color/white" android:textSize="14sp"/>
+
+    <TextView
+            android:text="@string/no_data"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/actual_left_day"
+            android:layout_height="wrap_content" android:id="@+id/next_renew_daily_left"
+            android:textColor="@android:color/white" android:textSize="18sp" android:textStyle="bold"/>
+
+    <TextView
+            android:text="@string/remaining"
+            android:layout_width="wrap_content"
+            android:layout_alignTop="@id/remaining"
+            android:layout_below="@id/renew"
+            android:layout_height="wrap_content" android:id="@+id/remaining_text"
+            android:textColor="@android:color/white" android:textSize="14sp"/>
+
+    <TextView
+            android:text="@string/no_data"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@id/next_renew_daily_left"
+            android:layout_height="wrap_content" android:id="@+id/remaining"
+            android:textColor="@android:color/white" android:textSize="18sp" android:textStyle="bold"/>
+
+    <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:progress="100"
+            android:layout_below="@id/remaining"
+            android:layout_width="match_parent"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="15dp"
+            android:layout_toStartOf="@id/percentage"
+            android:layout_height="wrap_content"
+            android:id="@+id/percentage_progress_bar"/>
+
+    <TextView
+            android:text="@string/no_data"
+            android:layout_width="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@id/percentage_progress_bar"
+            android:layout_height="wrap_content" android:id="@+id/percentage"
+            android:textColor="@android:color/white" android:textSize="14sp"/>
+
+    <TextView
+            android:id="@+id/last_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/last_updated"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="20dp"
+            android:layout_below="@id/percentage_progress_bar"
+            android:textColor="@android:color/white" android:textSize="11sp"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_data"
+            android:id="@+id/last_text_value"
+            android:layout_toEndOf="@id/last_text"
+            android:layout_alignTop="@id/last_text"
+            android:textColor="@android:color/white" android:textSize="11sp"/>
+
+    <Button
+            android:drawableStart="@drawable/ic_network_wifi_white_24dp"
+            android:layout_width="45dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="25dp"
+            android:backgroundTint="@color/success"
+            android:backgroundTintMode="screen"
+            android:layout_below="@id/last_text"
+            android:background="@drawable/button_round"
+            android:layout_height="45dp" android:id="@+id/connection_on_btn"/>
+
+    <Button
+            android:drawableStart="@drawable/ic_signal_wifi_off_white_24dp"
+            android:layout_width="45dp"
+            android:layout_alignTop="@id/connection_on_btn"
+            android:layout_toEndOf="@id/connection_on_btn"
+            android:background="@drawable/button_round"
+            android:backgroundTint="@color/error"
+            android:backgroundTintMode="screen"
+            android:layout_height="45dp" android:id="@+id/connection_off_btn"/>
+
+    <Button
+            android:drawableStart="@drawable/ic_refresh_white_24dp"
+            android:layout_width="45dp"
+            android:backgroundTint="@color/neutral"
+            android:backgroundTintMode="screen"
+            android:layout_alignTop="@id/connection_on_btn"
+            android:layout_alignParentEnd="true"
+            android:background="@drawable/button_round"
+            android:layout_height="45dp" android:id="@+id/refresh_btn"/>
+
+</RelativeLayout>

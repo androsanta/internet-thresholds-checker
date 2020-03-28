@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">WebCubeManager</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="account_in_use">Account in use:</string>
+    <string name="change_account">Change account</string>
+    <string name="set_your_account">Set your account</string>
+    <string name="account_set_message">Compile with your credentials from windTre website</string>
+    <string name="set">Set</string>
+    <string name="cancel">Cancel</string>
+    <string name="fill_fields">Fill all the fields!</string>
+    <string name="password">Password</string>
+    <string name="username">Username or Email</string>
+    <string name="connection">Connection</string>
+    <string name="today">Today:</string>
+    <string name="next_renew">Next renew:</string>
+    <string name="remaining">Remaining:</string>
+    <string name="last_updated">Last updated:</string>
+    <string name="no_data">:(</string>
+    <string name="msisdn_phone_number">Msisdn (Phone number)</string>
+</resources>
