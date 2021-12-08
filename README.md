@@ -31,7 +31,7 @@ The APIs available are:
 - `/status` get the current status
 - `/weekly_readings` get a list of all statuses during the current week
 
-Example of a request to _/status_
+Example of a response from _/status_
 ```json
 {
   "status": {
